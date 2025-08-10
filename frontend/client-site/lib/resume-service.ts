@@ -25,18 +25,34 @@ export interface ResumeData {
   status?: 'draft' | 'completed';
 }
 
+// Helper function to get auth token
+const getAuthToken = async () => {
+  if (typeof window !== 'undefined' && (window as any).__clerk) {
+    try {
+      const session = (window as any).__clerk.session;
+      if (session) {
+        return await session.getToken();
+      }
+    } catch (error) {
+      console.warn('Failed to get Clerk token:', error);
+    }
+  }
+  return null;
+};
+
 class ResumeService {
-  private getAuthHeaders() {
+  private async getAuthHeaders() {
+    const token = await getAuthToken();
+    
     return {
       'Content-Type': 'application/json',
-      // For now, we'll skip authentication to test the API
-      // Later we can integrate proper Clerk token handling
+      ...(token && { 'Authorization': `Bearer ${token}` }),
     };
   }
 
   async getAllResumes(): Promise<Resume[]> {
     try {
-      const headers = this.getAuthHeaders();
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/resumes`, {
         headers,
       });
@@ -56,7 +72,7 @@ class ResumeService {
 
   async getResume(id: string): Promise<Resume> {
     try {
-      const headers = this.getAuthHeaders();
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
         headers,
       });
@@ -76,7 +92,7 @@ class ResumeService {
 
   async createResume(data: ResumeData): Promise<Resume> {
     try {
-      const headers = this.getAuthHeaders();
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/resumes`, {
         method: 'POST',
         headers,
@@ -98,7 +114,7 @@ class ResumeService {
 
   async updateResume(id: string, data: ResumeData): Promise<Resume> {
     try {
-      const headers = this.getAuthHeaders();
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
         method: 'PUT',
         headers,
@@ -120,7 +136,7 @@ class ResumeService {
 
   async deleteResume(id: string): Promise<void> {
     try {
-      const headers = this.getAuthHeaders();
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
         method: 'DELETE',
         headers,
@@ -137,26 +153,6 @@ class ResumeService {
     }
   }
 
-  async duplicateResume(id: string): Promise<Resume> {
-    try {
-      const headers = this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}/resumes/${id}/duplicate`, {
-        method: 'POST',
-        headers,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', response.status, errorText);
-        throw new Error(`Failed to duplicate resume: ${response.status}`);
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Error duplicating resume:', error);
-      throw error;
-    }
-  }
 }
 
 const resumeService = new ResumeService();

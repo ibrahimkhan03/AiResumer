@@ -20,7 +20,6 @@ import {
   Search,
   MoreHorizontal,
   Edit,
-  Copy,
   Download,
   Trash2,
   Eye,
@@ -86,15 +85,6 @@ export default function ResumesPage() {
 
   const handleView = (resume: Resume) => {
     router.push(`/resumes/${resume.id}/preview`)
-  }
-
-  const handleDuplicate = async (resume: Resume) => {
-    try {
-      await resumeService.duplicateResume(resume.id)
-      loadResumes()
-    } catch (error) {
-      console.error('Failed to duplicate resume:', error)
-    }
   }
 
   const handleDelete = async (resume: Resume) => {
@@ -315,10 +305,6 @@ export default function ResumesPage() {
                           <DropdownMenuItem onClick={() => handleDownload(resume)}>
                             <Download className="h-4 w-4 mr-2" />
                             Download PDF
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDuplicate(resume)}>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Duplicate
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 

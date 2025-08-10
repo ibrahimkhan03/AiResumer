@@ -6,16 +6,18 @@ const {
   createResume,
   updateResume,
   deleteResume,
-  duplicateResume,
 } = require('../controllers/resumesController');
 
 const router = express.Router();
+
+// Temporarily bypass auth middleware for development
+// TODO: Enable auth middleware in production
+// router.use(authenticateUser);
 
 router.get('/', getAllResumes);
 router.get('/:id', getResumeById);
 router.post('/', createResume);
 router.put('/:id', updateResume);
 router.delete('/:id', deleteResume);
-router.post('/:id/duplicate', duplicateResume);
 
 module.exports = router;

@@ -2,23 +2,39 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+// Helper function to get user from request (set by auth middleware)
+const getUserFromRequest = async (req) => {
+  // User should be set by auth middleware
+  if (req.user) {
+    return req.user;
+  }
+  
+  // Fallback for development when auth middleware is bypassed
+  console.warn('Auth middleware bypassed - using fallback user for development');
+  
+  const clerkUserId = 'dev-user-id';
+  let user = await prisma.user.findUnique({
+    where: { clerkUserId }
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        clerkUserId,
+        email: "dev@example.com",
+        name: "Development User"
+      }
+    });
+    console.log('Created development user:', user);
+  }
+
+  return user;
+};
+
 // get all resumes for user
 const getAllResumes = async (req, res) => {
   try {
-    const clerkUserId = 'temp-clerk-id';
-    let user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId }
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          clerkUserId: "temp-clerk-id",
-          email: "temp@example.com",
-          name: "Test User"
-        }
-      });
-    }
+    const user = await getUserFromRequest(req);
 
     const resumes = await prisma.resume.findMany({
       where: {
@@ -33,7 +49,6 @@ const getAllResumes = async (req, res) => {
       }
     });
 
-    // transform to match frontend expectations
     const transformedResumes = resumes.map(resume => ({
       id: resume.id,
       resumeName: resume.title,
@@ -52,20 +67,7 @@ const getAllResumes = async (req, res) => {
 // get specific resume by id
 const getResumeById = async (req, res) => {
   try {
-    const clerkUserId = 'temp-clerk-id';
-    let user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId }
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          clerkUserId: "temp-clerk-id",
-          email: "temp@example.com",
-          name: "Test User"
-        }
-      });
-    }
+    const user = await getUserFromRequest(req);
 
     const resume = await prisma.resume.findFirst({
       where: {
@@ -112,22 +114,7 @@ const createResume = async (req, res) => {
       status = 'draft'
     } = req.body;
 
-    // ensure user exists - create if doesn't exist
-    const clerkUserId = 'temp-clerk-id';
-    let user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId }
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          clerkUserId: "temp-clerk-id",
-          email: "temp@example.com",
-          name: "Test User"
-        }
-      });
-      console.log('created temp user:', user);
-    }
+    const user = await getUserFromRequest(req);
 
     const resumeData = {
       personalInfo,
@@ -156,21 +143,7 @@ const createResume = async (req, res) => {
 // update resume (for auto-save and manual save)
 const updateResume = async (req, res) => {
   try {
-    // ensure user exists first
-    const clerkUserId = 'temp-clerk-id';
-    let user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId }
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          clerkUserId: "temp-clerk-id",
-          email: "temp@example.com",
-          name: "Test User"
-        }
-      });
-    }
+    const user = await getUserFromRequest(req);
 
     const {
       resumeName,
@@ -226,15 +199,7 @@ const updateResume = async (req, res) => {
 // delete resume
 const deleteResume = async (req, res) => {
   try {
-    // ensure user exists first
-    const clerkUserId = 'temp-clerk-id';
-    let user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId }
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: 'user not found' });
-    }
+    const user = await getUserFromRequest(req);
 
     const resume = await prisma.resume.findFirst({
       where: {
@@ -260,57 +225,10 @@ const deleteResume = async (req, res) => {
   }
 };
 
-// duplicate resume
-const duplicateResume = async (req, res) => {
-  try {
-    // ensure user exists first
-    const clerkUserId = 'temp-clerk-id';
-    let user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId }
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          clerkUserId: "temp-clerk-id",
-          email: "temp@example.com",
-          name: "Test User"
-        }
-      });
-    }
-
-    const originalResume = await prisma.resume.findFirst({
-      where: {
-        id: req.params.id,
-        userId: user.clerkUserId
-      }
-    });
-
-    if (!originalResume) {
-      return res.status(404).json({ error: 'resume not found' });
-    }
-
-    const duplicatedResume = await prisma.resume.create({
-      data: {
-        userId: user.clerkUserId,
-        title: `${originalResume.title} (Copy)`,
-        data: originalResume.data, // copy the JSON object as-is
-        status: 'draft'
-      }
-    });
-
-    res.status(201).json(duplicatedResume);
-  } catch (error) {
-    console.log('resume duplicate error:', error);
-    res.status(500).json({ error: 'failed to duplicate resume' });
-  }
-};
-
 module.exports = {
   getAllResumes,
   getResumeById,
   createResume,
   updateResume,
   deleteResume,
-  duplicateResume,
 };
