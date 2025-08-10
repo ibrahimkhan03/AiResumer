@@ -73,7 +73,6 @@ interface Education {
   startDate: string
   endDate: string
   gpa: string
-  description: string
 }
 
 interface Skill {
@@ -132,9 +131,23 @@ const PurpleResume = ({
   // Format date function
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
-    const [year, month] = dateString.split('-');
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${monthNames[parseInt(month) - 1]} ${year}`;
+    
+    // Handle both date formats: YYYY-MM-DD (date) and YYYY-MM (month)
+    const parts = dateString.split('-');
+    
+    if (parts.length === 3) {
+      // Full date format: YYYY-MM-DD
+      const [year, month, day] = parts;
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${monthNames[parseInt(month) - 1]} ${day}, ${year}`;
+    } else if (parts.length === 2) {
+      // Month only format: YYYY-MM
+      const [year, month] = parts;
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${monthNames[parseInt(month) - 1]} ${year}`;
+    }
+    
+    return dateString;
   };
 
   return (
@@ -179,7 +192,7 @@ const PurpleResume = ({
                 </div>
                 <h3 className="text-xs font-bold uppercase tracking-wide">Skills</h3>
               </div>
-              {skills.slice(0, 10).map((skill) => (
+              {skills.slice(0, 15).map((skill) => (
                 <SkillBar key={skill.id} name={skill.name} level={skill.level} />
               ))}
             </section>
@@ -343,6 +356,11 @@ const PurpleResume = ({
                     <div className="absolute left-[-18px] top-1 w-1.5 h-1.5 bg-purple-600 rounded-full"></div>
                     <div>
                       <h4 className="text-xs font-bold text-gray-900">{project.title}</h4>
+                      {(project.startDate || project.endDate) && (
+                        <p className="text-xs text-gray-600 italic">
+                          {formatDate(project.startDate)} - {project.current ? 'Present' : formatDate(project.endDate)}
+                        </p>
+                      )}
                       {project.technologies && (
                         <p className="text-xs text-purple-600 font-medium">{project.technologies}</p>
                       )}
@@ -446,34 +464,12 @@ export default function CreateResumePage() {
       startDate: "",
       endDate: "",
       gpa: "",
-      description: "",
     },
   ])
 
   const [skills, setSkills] = useState<Skill[]>([])
   const [newSkill, setNewSkill] = useState("")
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: "1",
-      title: "",
-      description: "",
-      technologies: "",
-      link: "",
-      startDate: "",
-      endDate: "",
-      current: false,
-    },
-    {
-      id: "2",
-      title: "",
-      description: "",
-      technologies: "",
-      link: "",
-      startDate: "",
-      endDate: "",
-      current: false,
-    },
-  ])
+  const [projects, setProjects] = useState<Project[]>([])
 
   const steps = [
     { id: 0, name: "Personal Info", icon: User, completed: false },
@@ -485,6 +481,10 @@ export default function CreateResumePage() {
   ]
 
   const addExperience = () => {
+    if (experiences.length >= 2) {
+      alert("Maximum 2 work experiences allowed")
+      return
+    }
     const newExp: Experience = {
       id: Date.now().toString(),
       title: "",
@@ -507,6 +507,10 @@ export default function CreateResumePage() {
   }
 
   const addEducation = () => {
+    if (education.length >= 2) {
+      alert("Maximum 2 education entries allowed")
+      return
+    }
     const newEdu: Education = {
       id: Date.now().toString(),
       degree: "",
@@ -515,7 +519,6 @@ export default function CreateResumePage() {
       startDate: "",
       endDate: "",
       gpa: "",
-      description: "",
     }
     setEducation([...education, newEdu])
   }
@@ -529,7 +532,7 @@ export default function CreateResumePage() {
   }
 
   const addSkill = () => {
-    if (newSkill.trim() && skills.length < 10) {
+    if (newSkill.trim() && skills.length < 15) {
       const skill: Skill = {
         id: Date.now().toString(),
         name: newSkill.trim(),
@@ -549,6 +552,10 @@ export default function CreateResumePage() {
   }
 
   const addProject = () => {
+    if (projects.length >= 2) {
+      alert("Maximum 2 projects allowed")
+      return
+    }
     const newProject: Project = {
       id: Date.now().toString(),
       title: "",
@@ -1112,9 +1119,14 @@ export default function CreateResumePage() {
                     </div>
                   ))}
 
-                  <Button variant="outline" onClick={addExperience} className="w-full bg-transparent">
+                  <Button 
+                    variant="outline" 
+                    onClick={addExperience} 
+                    className="w-full bg-transparent"
+                    disabled={experiences.length >= 2}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Experience
+                    Add Experience {experiences.length >= 2 ? "(Max 2)" : ""}
                   </Button>
                 </CardContent>
               </Card>
@@ -1200,22 +1212,17 @@ export default function CreateResumePage() {
                           placeholder="3.8/4.0"
                         />
                       </div>
-
-                      <div className="space-y-2">
-                        <Label>Description (Optional)</Label>
-                        <Textarea
-                          rows={2}
-                          value={edu.description}
-                          onChange={(e) => updateEducation(edu.id, "description", e.target.value)}
-                          placeholder="Relevant coursework, achievements, etc..."
-                        />
-                      </div>
                     </div>
                   ))}
 
-                  <Button variant="outline" onClick={addEducation} className="w-full bg-transparent">
+                  <Button 
+                    variant="outline" 
+                    onClick={addEducation} 
+                    className="w-full bg-transparent"
+                    disabled={education.length >= 2}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Education
+                    Add Education {education.length >= 2 ? "(Max 2)" : ""}
                   </Button>
                 </CardContent>
               </Card>
@@ -1237,16 +1244,16 @@ export default function CreateResumePage() {
                       onChange={(e) => setNewSkill(e.target.value)}
                       placeholder="Enter a skill (e.g., React, Python, Leadership)"
                       onKeyPress={(e) => e.key === "Enter" && addSkill()}
-                      disabled={skills.length >= 10}
+                      disabled={skills.length >= 15}
                     />
-                    <Button onClick={addSkill} disabled={skills.length >= 10}>
+                    <Button onClick={addSkill} disabled={skills.length >= 15}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
 
-                  {skills.length >= 10 && (
+                  {skills.length >= 15 && (
                     <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-                      Maximum of 10 skills reached. Remove a skill to add a new one.
+                      Maximum of 15 skills reached. Remove a skill to add a new one.
                     </div>
                   )}
 
@@ -1370,7 +1377,7 @@ export default function CreateResumePage() {
                             <div className="space-y-2">
                               <Label>Start Date</Label>
                               <Input
-                                type="month"
+                                type="date"
                                 value={project.startDate}
                                 onChange={(e) => updateProject(project.id, "startDate", e.target.value)}
                               />
@@ -1378,7 +1385,7 @@ export default function CreateResumePage() {
                             <div className="space-y-2">
                               <Label>End Date</Label>
                               <Input
-                                type="month"
+                                type="date"
                                 value={project.endDate}
                                 onChange={(e) => updateProject(project.id, "endDate", e.target.value)}
                                 disabled={project.current}
@@ -1421,9 +1428,14 @@ export default function CreateResumePage() {
                         </div>
                       ))}
 
-                      <Button variant="outline" onClick={addProject} className="w-full bg-transparent">
+                      <Button 
+                        variant="outline" 
+                        onClick={addProject} 
+                        className="w-full bg-transparent"
+                        disabled={projects.length >= 2}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
-                        Add Another Project
+                        Add Another Project {projects.length >= 2 ? "(Max 2)" : ""}
                       </Button>
                     </>
                   )}
