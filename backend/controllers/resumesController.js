@@ -2,14 +2,11 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Helper function to get user from request (set by auth middleware)
 const getUserFromRequest = async (req) => {
-  // User should be set by auth middleware
   if (req.user) {
     return req.user;
   }
   
-  // Fallback for development when auth middleware is bypassed
   console.warn('Auth middleware bypassed - using fallback user for development');
   
   const clerkUserId = 'dev-user-id';
@@ -80,7 +77,6 @@ const getResumeById = async (req, res) => {
       return res.status(404).json({ error: 'resume not found' });
     }
 
-    // transform to match frontend expectations
     const transformedResume = {
       id: resume.id,
       resumeName: resume.title,
@@ -166,7 +162,6 @@ const updateResume = async (req, res) => {
       return res.status(404).json({ error: 'resume not found' });
     }
 
-    // parse existing data
     const existingData = resume.data;
 
     const updatedData = {
