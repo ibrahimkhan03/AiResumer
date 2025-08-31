@@ -33,12 +33,12 @@ export default function SignInPage() {
                 headerTitle: 'text-foreground',
                 headerSubtitle: 'text-muted-foreground',
                 socialButtonsBlockButton: 
-                  'border-border hover:bg-accent text-foreground',
+                  'border hover:bg-accent text-foreground',
                 dividerLine: 'bg-border',
                 dividerText: 'text-muted-foreground',
                 formFieldLabel: 'text-foreground',
                 formFieldInput: 
-                  'bg-background border-border text-foreground focus:ring-ring',
+                  'bg-background border text-foreground focus:ring-ring',
                 footerActionLink: 'text-primary hover:text-primary/90',
               },
             }}
