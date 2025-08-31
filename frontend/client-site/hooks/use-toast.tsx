@@ -27,7 +27,6 @@ export function useToast() {
       toasts.push(newToast)
       setToastList([...toasts])
 
-      // Auto-remove toast after 5 seconds
       setTimeout(() => {
         const index = toasts.findIndex((t) => t.id === id)
         if (index > -1) {

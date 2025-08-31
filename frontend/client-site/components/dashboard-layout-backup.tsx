@@ -160,11 +160,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </SidebarGroupContent>
             </SidebarGroup>
           ))}
-        </SidebarContent>
 
-        <SidebarFooter className="p-4 border-t border-gray-100 dark:border-gray-800">
           {/* Subscription Plan Section */}
-          <div className="mb-4">
+          <div className="mt-6 mx-2">
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 border border-blue-200 dark:border-gray-700">
               <div className="space-y-3">
                 {/* Resumes Usage */}
@@ -198,6 +196,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </div>
           </div>
+        </SidebarContent>
+
+        <SidebarFooter className="p-2">
+          {/* Footer removed - subscription plan moved above */}
         </SidebarFooter>
       </Sidebar>
     )

@@ -45,7 +45,6 @@ export function Navbar() {
           {/* Right side buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Button
-             disabled={true}
               variant="ghost"
               size="icon"
               onClick={() => {

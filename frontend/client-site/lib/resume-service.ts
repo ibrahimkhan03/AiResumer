@@ -155,6 +155,62 @@ class ResumeService {
 
 }
 
+// LocalStorage utility functions
+export const localStorageUtils = {
+  // Get all drafts from localStorage
+  getAllDrafts: (): any[] => {
+    try {
+      const draftKeys = Object.keys(localStorage).filter(key => key.startsWith('resume_draft_'))
+      const drafts = []
+      
+      for (const key of draftKeys) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key) || '{}')
+          drafts.push({
+            id: key,
+            resumeName: data.resumeName || 'Untitled Draft',
+            lastModified: data.lastModified || new Date().toISOString(),
+            status: 'draft',
+            isLocalDraft: true,
+            personalInfo: data.personalInfo,
+            experiences: data.experiences,
+            education: data.education,
+            skills: data.skills,
+            projects: data.projects
+          })
+        } catch (e) {
+          // Skip invalid entries
+        }
+      }
+      
+      return drafts.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime())
+    } catch (error) {
+      console.error('Failed to get drafts from localStorage:', error)
+      return []
+    }
+  },
+
+  // Delete a specific draft
+  deleteDraft: (draftKey: string): void => {
+    try {
+      localStorage.removeItem(draftKey)
+    } catch (error) {
+      console.error('Failed to delete draft:', error)
+    }
+  },
+
+  // Get a specific draft
+  getDraft: (draftKey: string): any | null => {
+    try {
+      const data = localStorage.getItem(draftKey)
+      return data ? JSON.parse(data) : null
+    } catch (error) {
+      console.error('Failed to get draft:', error)
+      return null
+    }
+  }
+}
+
 const resumeService = new ResumeService();
 export default resumeService;
 export { resumeService };

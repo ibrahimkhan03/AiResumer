@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import resumeService, { Resume } from '@/lib/resume-service'
 
-// Data interfaces matching create-resume page
+// Data interfaces create-resume page
 interface PersonalInfo {
   resumeName: string
   firstName: string

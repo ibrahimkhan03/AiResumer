@@ -11,17 +11,28 @@ async function makeAuthenticatedRequest(url: string, options: RequestInit = {}) 
       // Try to get token from window.Clerk if available
       if ((window as any).__clerk_session_token) {
         token = (window as any).__clerk_session_token;
+        console.log('🎫 Token found in window:', token?.substring(0, 20) + '...');
+      } else {
+        console.log('🚫 No token found in window.__clerk_session_token');
       }
     } catch (error) {
-      console.log('No client session token available');
+      console.log('❌ Error getting token from window:', error);
     }
+  }
+
+  // If no token, return early
+  if (!token) {
+    console.log('🚫 No authentication token available');
+    throw new Error('No authentication token available');
   }
 
   const headers = {
     'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
+    'Authorization': `Bearer ${token}`,
     ...options.headers,
   };
+
+  console.log('📡 Making request with headers:', { Authorization: `Bearer ${token.substring(0, 20)}...` });
 
   return fetch(url, {
     ...options,
@@ -33,15 +44,27 @@ async function makeAuthenticatedRequest(url: string, options: RequestInit = {}) 
 // Get all jobs for the authenticated user
 export async function getAllJobs() {
   try {
+    console.log('🔍 Making request to:', `${API_BASE_URL}/jobs`);
     const response = await makeAuthenticatedRequest(`${API_BASE_URL}/jobs`);
 
+    console.log('📡 Response status:', response.status);
+    
     if (!response.ok) {
+      if (response.status === 401) {
+        console.log('🚫 Authentication required - user not logged in or token expired');
+        return []; // Return empty array instead of throwing error
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('✅ Jobs loaded:', data.length, 'jobs');
+    return data;
   } catch (error) {
-    console.error('Error fetching jobs:', error);
+    console.error('❌ Error fetching jobs:', error);
+    if (error instanceof Error && error.message.includes('No authentication token')) {
+      return []; // Return empty array if no token
+    }
     throw error;
   }
 }
@@ -151,12 +174,19 @@ export async function getJobStats() {
     const response = await makeAuthenticatedRequest(`${API_BASE_URL}/jobs/stats/overview`);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        console.log('Authentication required - user not logged in or token expired');
+        return { totalApplications: 0, inProgress: 0, offersReceived: 0, responseRate: 0 }; // Return default stats
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     return await response.json();
   } catch (error) {
     console.error('Error fetching job stats:', error);
+    if (error instanceof Error && error.message.includes('No authentication token')) {
+      return { totalApplications: 0, inProgress: 0, offersReceived: 0, responseRate: 0 }; // Return default stats
+    }
     throw error;
   }
 }
