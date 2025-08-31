@@ -9,7 +9,10 @@ const authenticateUser = async (req, res, next) => {
     // Get the session token from the Authorization header
     const authHeader = req.headers.authorization;
     
+    console.log('🔒 Auth middleware: Checking authorization header...');
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('🚫 Auth middleware: No valid authorization header found');
       return res.status(401).json({ 
         error: 'Unauthorized', 
         message: 'No valid authorization header found' 
@@ -17,13 +20,18 @@ const authenticateUser = async (req, res, next) => {
     }
 
     const sessionToken = authHeader.substring(7); // Remove 'Bearer ' prefix
+    console.log('🎫 Auth middleware: Token received:', sessionToken.substring(0, 20) + '...');
 
     // Verify the session token using networkless verification
     const payload = await verifyToken(sessionToken, {
       secretKey: process.env.CLERK_SECRET_KEY,
+      clockToleranceInMs: 30000, // 60 seconds tolerance
     });
     
+    console.log('✅ Auth middleware: Token verified, payload received');
+    
     if (!payload || !payload.sub) {
+      console.log('🚫 Auth middleware: Invalid token payload');
       return res.status(401).json({ 
         error: 'Unauthorized', 
         message: 'Invalid session token' 
@@ -31,6 +39,7 @@ const authenticateUser = async (req, res, next) => {
     }
 
     const clerkUserId = payload.sub;
+    console.log('👤 Auth middleware: Clerk User ID:', clerkUserId);
 
     // Get or create user in database
     let user = await prisma.user.findUnique({

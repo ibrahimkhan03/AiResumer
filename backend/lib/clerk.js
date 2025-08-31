@@ -1,4 +1,3 @@
-
 const { Clerk } = require('@clerk/clerk-sdk-node');
 
 const clerk = Clerk({

@@ -11,12 +11,10 @@ const processWebhook = async (req, res) => {
     const payload = JSON.stringify(req.body);
     const headers = req.headers;
 
-    // verify webhook first  
     const evt = verifyWebhook(payload, headers);
 
-    console.log('got webhook:', evt.type); // debug
+    console.log('got webhook:', evt.type);
 
-    // handle different events
     if (evt.type === 'user.created') {
       await handleUserCreated(evt.data);
     } else if (evt.type === 'user.updated') {
@@ -24,7 +22,7 @@ const processWebhook = async (req, res) => {
     } else if (evt.type === 'user.deleted') {
       await handleUserDeleted(evt.data);
     } else {
-      console.log('unknown webhook type:', evt.type); // just log it
+      console.log('unknown webhook type:', evt.type); 
     }
 
     res.json({ 
@@ -41,5 +39,5 @@ const processWebhook = async (req, res) => {
 };
 
 module.exports = {
-  handleWebhook: processWebhook, // keep original name for compatibility
+  handleWebhook: processWebhook,
 };

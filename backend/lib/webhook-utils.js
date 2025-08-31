@@ -3,9 +3,9 @@ const prisma = require('./prisma');
 
 const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
-/**
- * Verify webhook signature
- */
+
+// Verify webhook signature
+
 const verifyWebhook = (payload, headers) => {
   try {
     return webhook.verify(payload, headers);
@@ -15,9 +15,9 @@ const verifyWebhook = (payload, headers) => {
   }
 };
 
-/**
- * Handle user creation
- */
+
+// Handle user creation
+
 const handleUserCreated = async (userData) => {
   try {
     const user = await prisma.user.create({
@@ -36,9 +36,9 @@ const handleUserCreated = async (userData) => {
   }
 };
 
-/**
- * Handle user updates
- */
+
+// Handle user updates
+
 const handleUserUpdated = async (userData) => {
   try {
     const user = await prisma.user.update({
@@ -57,9 +57,9 @@ const handleUserUpdated = async (userData) => {
   }
 };
 
-/**
- * Handle user deletion
- */
+
+// Handle user deletion
+
 const handleUserDeleted = async (userData) => {
   try {
     const user = await prisma.user.delete({

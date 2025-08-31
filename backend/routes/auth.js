@@ -9,10 +9,8 @@ const {
 
 const router = express.Router();
 
-// Apply authentication middleware to all routes
 router.use(authenticateUser);
 
-// User profile routes
 router.get('/me', getCurrentUser);
 router.put('/profile', updateProfile);
 router.delete('/account', deleteAccount);

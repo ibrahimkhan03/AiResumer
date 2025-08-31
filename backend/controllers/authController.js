@@ -4,7 +4,7 @@ const clerk = require('../lib/clerk');
 // get user profile
 const getCurrentUser = async (req, res) => {
   try {
-    const user = req.user; // from auth middleware
+    const user = req.user;
     
     res.json({
       success: true,
@@ -18,7 +18,7 @@ const getCurrentUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log('error getting user:', error) // debug
+    console.log('error getting user:', error)
     res.status(500).json({
       error: 'server error',
       message: 'failed to get profile',
@@ -97,16 +97,13 @@ const deleteAccount = async (req, res) => {
   }
 };
 
-// get user stats
 const getUserStats = async (req, res) => {
   try {
     const user = req.user;
     
-    // basic stats for now
     const stats = {
       joinDate: user.createdAt,
       plan: user.plan,
-      // maybe add resume count later
     };
 
     res.json({

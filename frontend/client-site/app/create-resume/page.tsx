@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useReactToPrint } from "react-to-print"
 import { Button } from "@/components/ui/button"
@@ -388,6 +388,14 @@ const PurpleResume = ({
 };
 
 export default function CreateResumePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CreateResumeContent />
+    </Suspense>
+  )
+}
+
+function CreateResumeContent() {
   const [aiModalOpen, setAIModalOpen] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const resumeRef = useRef<HTMLDivElement>(null)

@@ -5,15 +5,12 @@ const prisma = new PrismaClient();
 const getUserFromRequest = async (req) => {
   if (req.user) {
     return req.user;
-  }
-  
-  console.warn('Auth middleware bypassed - using fallback user for development');
-  
+  }  
+  console.warn('Auth middleware bypassed for development');
   const clerkUserId = 'dev-user-id';
   let user = await prisma.user.findUnique({
     where: { clerkUserId }
   });
-
   if (!user) {
     user = await prisma.user.create({
       data: {
@@ -36,7 +33,7 @@ const getAllResumes = async (req, res) => {
     const resumes = await prisma.resume.findMany({
       where: {
         userId: user.clerkUserId
-      },
+      }, 
       select: {
         id: true,
         title: true,

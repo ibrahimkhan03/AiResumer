@@ -1,6 +1,5 @@
-/**
- * Global error handler middleware
- */
+// Global error handler middleware
+
 const errorHandler = (err, req, res, next) => {
   console.error('Error:', err);
 
@@ -41,7 +40,7 @@ const errorHandler = (err, req, res, next) => {
       message: 'Token expired',
     });
   }
-
+  
   // Default error
   res.status(err.status || 500).json({
     error: err.status >= 500 ? 'Internal Server Error' : err.name || 'Error',
@@ -51,9 +50,8 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-/**
- * 404 handler
- */
+// 404 handler
+
 const notFound = (req, res) => {
   res.status(404).json({
     error: 'Not Found',
