@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const finalPrompt = customPrompt
       ? customPrompt
       : `
-      Write a professional resume summary for the following role and skills. Do not use numbering, options, markdown, or headings. The summary should be 4-5 plain lines, each line a complete sentence. Only return the summary, nothing else.
+      Generate a professional AI resume summary under 400 characters.
       Position Highlight: ${positionHighlight}
       Skills Highlight: ${skillsHighlight}
     `;

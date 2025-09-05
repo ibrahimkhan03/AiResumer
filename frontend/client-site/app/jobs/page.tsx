@@ -46,6 +46,7 @@ import {
   TrendingUp,
   Award,
   Target,
+  Settings,
 } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { JobTrackerTable } from "@/components/job-tracker-table"
@@ -88,6 +89,8 @@ export default function JobsPage() {
   const [jobStats, setJobStats] = useState<JobStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [selectedCurrency, setSelectedCurrency] = useState("$")
+  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false)
   const { toast } = useToast()
   
   // Form state for add/edit application modal
@@ -104,6 +107,30 @@ export default function JobsPage() {
     contactEmail: "",
     applicationDate: "",
   })
+
+  // Currency options
+  const currencyOptions = [
+    { symbol: "$", name: "US Dollar", code: "USD" },
+    { symbol: "€", name: "Euro", code: "EUR" },
+    { symbol: "£", name: "British Pound", code: "GBP" },
+    { symbol: "¥", name: "Japanese Yen", code: "JPY" },
+    { symbol: "₹", name: "Indian Rupee", code: "INR" },
+    { symbol: "₦", name: "Nigerian Naira", code: "NGN" },
+    { symbol: "R", name: "South African Rand", code: "ZAR" },
+    { symbol: "C$", name: "Canadian Dollar", code: "CAD" },
+    { symbol: "A$", name: "Australian Dollar", code: "AUD" },
+    { symbol: "CHF", name: "Swiss Franc", code: "CHF" },
+    { symbol: "¥", name: "Chinese Yuan", code: "CNY" },
+    { symbol: "₽", name: "Russian Ruble", code: "RUB" },
+  ]
+
+  // Load currency preference from localStorage
+  useEffect(() => {
+    const savedCurrency = localStorage.getItem('preferred-currency')
+    if (savedCurrency) {
+      setSelectedCurrency(savedCurrency)
+    }
+  }, [])
 
   // Load jobs and stats on component mount
   useEffect(() => {
@@ -275,8 +302,41 @@ export default function JobsPage() {
     })
   }
 
+  const handleCurrencySelect = (currencySymbol: string) => {
+    setSelectedCurrency(currencySymbol)
+    localStorage.setItem('preferred-currency', currencySymbol)
+    setIsCurrencyModalOpen(false)
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new Event('currencyChanged'))
+    
+    toast({
+      title: "Currency Updated",
+      description: `Currency symbol changed to ${currencySymbol}`,
+    })
+  }
+
+  // Function to clean currency symbols from salary input
+  const cleanSalaryInput = (input: string) => {
+    // Remove common currency symbols and extra spaces
+    const currencySymbols = ['$', '€', '£', '¥', '₹', '₦', 'R', 'C$', 'A$', 'CHF', '₽']
+    let cleaned = input
+    
+    currencySymbols.forEach(symbol => {
+      cleaned = cleaned.replace(new RegExp(`\\${symbol}`, 'g'), '')
+    })
+    
+    return cleaned.trim()
+  }
+
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    if (field === 'salary') {
+      // Clean currency symbols from salary input
+      const cleanedValue = cleanSalaryInput(value)
+      setFormData(prev => ({ ...prev, [field]: cleanedValue }))
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }))
+    }
   }
 
   // Enhanced stats array with improved styling
@@ -352,7 +412,7 @@ export default function JobsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 p-6">
+      <div className="space-y-8">
         {/* Enhanced Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="space-y-2">
@@ -361,7 +421,7 @@ export default function JobsPage() {
                 <Briefcase className="h-7 w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   Job Tracker
                 </h1>
                 <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">
@@ -371,14 +431,66 @@ export default function JobsPage() {
             </div>
           </div>
           
+          <div className="flex items-center gap-3">
+            {/* Currency Selector Button */}
+            <Dialog open={isCurrencyModalOpen} onOpenChange={setIsCurrencyModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <Settings className="h-4 w-4" />
+                  <span className="font-semibold">{selectedCurrency}</span>
+                  Currency
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader className="space-y-3 pb-6 border-b">
+                  <DialogTitle className="flex items-center gap-3 text-xl font-bold">
+                    <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                      <DollarSign className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    Select Currency Symbol
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-600 dark:text-gray-400">
+                    Choose your preferred currency symbol for salary display
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-3 py-6">
+                  {currencyOptions.map((currency) => (
+                    <Button
+                      key={currency.code}
+                      variant={selectedCurrency === currency.symbol ? "default" : "outline"}
+                      className={`justify-start h-auto p-4 ${
+                        selectedCurrency === currency.symbol 
+                          ? "bg-indigo-600 hover:bg-indigo-700 text-white" 
+                          : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      }`}
+                      onClick={() => handleCurrencySelect(currency.symbol)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-bold">{currency.symbol}</span>
+                        <div className="text-left">
+                          <div className="font-semibold">{currency.name}</div>
+                          <div className="text-sm opacity-70">{currency.code}</div>
+                        </div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Add Application Button */}
+            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add Application
+                </Button>
+              </DialogTrigger>
+            </Dialog>
+          </div>
+          
           {/* Enhanced Add Job Application Modal */}
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 text-lg font-semibold">
-                <Plus className="h-5 w-5 mr-2" />
-                Add Application
-              </Button>
-            </DialogTrigger>
             <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
               <DialogHeader className="space-y-3 pb-6 border-b">
                 <DialogTitle className="flex items-center gap-3 text-2xl font-bold">
@@ -434,14 +546,22 @@ export default function JobsPage() {
 
                   {/* Salary */}
                   <div className="space-y-3">
-                    <Label htmlFor="salary" className="text-sm font-semibold text-gray-900 dark:text-gray-100">Salary Range</Label>
-                    <Input
-                      id="salary"
-                      placeholder="e.g. $120k - $150k"
-                      value={formData.salary}
-                      onChange={(e) => handleInputChange("salary", e.target.value)}
-                      className="h-12 text-base border-2 focus:border-blue-500 transition-colors"
-                    />
+                    <Label htmlFor="salary" className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      Salary Range 
+                      <span className="text-xs text-gray-500 dark:text-gray-400 font-normal ml-2">({selectedCurrency} will be applied automatically)</span>
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                        <span className="text-gray-500 dark:text-gray-400 font-medium text-base">{selectedCurrency}</span>
+                      </div>
+                      <Input
+                        id="salary"
+                        placeholder={`120k - 150k (${selectedCurrency})`}
+                        value={formData.salary}
+                        onChange={(e) => handleInputChange("salary", e.target.value)}
+                        className={`h-12 text-base border-2 focus:border-blue-500 transition-colors ${selectedCurrency.length > 1 ? 'pl-12' : 'pl-8'}`}
+                      />
+                    </div>
                   </div>
 
                   {/* Status */}
@@ -620,14 +740,22 @@ export default function JobsPage() {
 
                   {/* Salary */}
                   <div className="space-y-3">
-                    <Label htmlFor="edit-salary" className="text-sm font-semibold text-gray-900 dark:text-gray-100">Salary Range</Label>
-                    <Input
-                      id="edit-salary"
-                      placeholder="e.g. $120k - $150k"
-                      value={formData.salary}
-                      onChange={(e) => handleInputChange("salary", e.target.value)}
-                      className="h-12 text-base border-2 focus:border-amber-500 transition-colors"
-                    />
+                    <Label htmlFor="edit-salary" className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      Salary Range 
+                      <span className="text-xs text-gray-500 dark:text-gray-400 font-normal ml-2">({selectedCurrency} will be applied automatically)</span>
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                        <span className="text-gray-500 dark:text-gray-400 font-medium text-base">{selectedCurrency}</span>
+                      </div>
+                      <Input
+                        id="edit-salary"
+                        placeholder={`120k - 150k (${selectedCurrency})`}
+                        value={formData.salary}
+                        onChange={(e) => handleInputChange("salary", e.target.value)}
+                        className={`h-12 text-base border-2 focus:border-amber-500 transition-colors ${selectedCurrency.length > 1 ? 'pl-12' : 'pl-8'}`}
+                      />
+                    </div>
                   </div>
 
                   {/* Status */}
@@ -792,11 +920,35 @@ export default function JobsPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 h-14 p-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
-            <TabsTrigger value="all-applications" className="text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md">All Applications</TabsTrigger>
-            <TabsTrigger value="active" className="text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md">Active</TabsTrigger>
-            <TabsTrigger value="interviews" className="text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md">Interviews</TabsTrigger>
-            <TabsTrigger value="offers" className="text-base font-medium data-[state=active]:bg-white data-[state=active]:shadow-md">Offers</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-slate-800 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg h-auto">
+            <TabsTrigger 
+              value="all-applications" 
+              className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-700 min-h-[60px] text-sm"
+            >
+              <Briefcase className="h-4 w-4" />
+              <span className="font-medium">All Applications</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="active" 
+              className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-700 min-h-[60px] text-sm"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span className="font-medium">Active</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="interviews" 
+              className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-700 min-h-[60px] text-sm"
+            >
+              <Calendar className="h-4 w-4" />
+              <span className="font-medium">Interviews</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="offers" 
+              className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-700 min-h-[60px] text-sm"
+            >
+              <Star className="h-4 w-4" />
+              <span className="font-medium">Offers</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all-applications" className="space-y-8">
@@ -859,8 +1011,8 @@ export default function JobsPage() {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-start gap-6">
-                              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-2xl flex items-center justify-center shadow-lg">
-                                <Building className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                              <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-200 dark:from-amber-900 dark:to-orange-800 rounded-2xl flex items-center justify-center shadow-lg">
+                                <Building className="h-8 w-8 text-amber-600 dark:text-amber-400" />
                               </div>
                               <div className="flex-1 space-y-4">
                                 <div className="flex items-center gap-3 mb-3">
@@ -882,7 +1034,7 @@ export default function JobsPage() {
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <DollarSign className="h-4 w-4" />
-                                    <span className="font-medium">{application.salary || "Not specified"}</span>
+                                    <span className="font-medium">{application.salary ? `${selectedCurrency}${application.salary}` : "Not specified"}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4" />
@@ -890,7 +1042,7 @@ export default function JobsPage() {
                                   </div>
                                 </div>
                                 {application.notes && (
-                                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border-l-4 border-blue-500">
+                                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border-l-4 border-amber-500">
                                     <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
                                       {application.notes}
                                     </p>
@@ -935,7 +1087,7 @@ export default function JobsPage() {
             <Card className="border-0 shadow-xl bg-white dark:bg-gray-800">
               <CardHeader className="pb-6 border-b border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
                     <Calendar className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -948,16 +1100,16 @@ export default function JobsPage() {
                 <div className="space-y-6">
                   {loading ? (
                     <div className="text-center py-12">
-                      <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-green-600" />
+                      <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-blue-600" />
                       <p className="text-lg text-gray-600 dark:text-gray-400">Loading interviews...</p>
                     </div>
                   ) : (
                     jobs
                       .filter((app) => app.status.includes("Interview"))
                       .map((interview) => (
-                        <div key={interview.id} className="flex items-center justify-between p-6 border border-gray-200 dark:border-gray-700 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg transition-all duration-300">
+                        <div key={interview.id} className="flex items-center justify-between p-6 border border-gray-200 dark:border-gray-700 rounded-2xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 hover:shadow-lg transition-all duration-300">
                           <div className="flex items-center gap-6">
-                            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
                               <Calendar className="h-7 w-7 text-white" />
                             </div>
                             <div className="space-y-2">
@@ -971,7 +1123,7 @@ export default function JobsPage() {
                             </div>
                           </div>
                           <div className="text-right space-y-2">
-                            <Badge variant="outline" className="px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 border-green-300">{interview.status}</Badge>
+                            <Badge variant="outline" className="px-4 py-2 text-sm font-semibold bg-blue-100 text-blue-800 border-blue-300">{interview.status}</Badge>
                             <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                               {interview.applicationDate ? new Date(interview.applicationDate).toLocaleDateString() : "TBD"}
                             </p>
@@ -1029,7 +1181,7 @@ export default function JobsPage() {
                               <p className="text-base text-gray-700 dark:text-gray-300 font-medium">
                                 {offer.company} • {offer.location || "Remote/TBD"}
                               </p>
-                              <p className="text-base text-emerald-700 dark:text-emerald-400 font-bold">{offer.salary || "Salary negotiable"}</p>
+                              <p className="text-base text-emerald-700 dark:text-emerald-400 font-bold">{offer.salary ? `${selectedCurrency}${offer.salary}` : "Salary negotiable"}</p>
                               <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Received: {new Date(offer.updatedAt).toLocaleDateString()}
                               </p>
@@ -1068,5 +1220,6 @@ export default function JobsPage() {
         </Tabs>
       </div>
     </DashboardLayout>
-  )
+  ) 
 }
+

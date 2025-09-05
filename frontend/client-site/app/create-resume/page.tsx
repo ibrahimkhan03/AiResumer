@@ -927,28 +927,34 @@ function CreateResumeContent() {
       />
       <div className="space-y-8">
         {/* Enhanced Header */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 border border-blue-100 dark:border-gray-700">
-          <div className="flex items-center gap-6">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleBackToResumes}
-              className="bg-white/80 hover:bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Resumes
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 rounded-2xl p-8 border border-blue-100 dark:border-blue-900/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleBackToResumes}
+                className="bg-white/80 hover:bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Resumes
+              </Button>
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                   <FileText className="h-8 w-8 text-white" />
                 </div>
-                {personalInfo.resumeName || 'Create Resume'}
-              </h1>
-              <div className="flex items-center gap-6 mt-2">
-                <p className="text-gray-600 dark:text-gray-300 font-medium">
-                  Build your professional resume step by step
-                </p>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                    {personalInfo.resumeName || 'Create Resume'}
+                  </h1>
+                  <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">
+                    Build your professional resume step by step
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-3">
                 {lastSaved && (
                   <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">
                     <CheckCircle className="h-4 w-4" />
@@ -962,58 +968,60 @@ function CreateResumeContent() {
                   </div>
                 )}
               </div>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={handleManualSave}
+                  disabled={saving}
+                  className="bg-white/80 hover:bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {resume?.status === 'completed' 
+                    ? `Update "${personalInfo.resumeName || 'Resume'}"` 
+                    : personalInfo.resumeName 
+                      ? `Save "${personalInfo.resumeName}"` 
+                      : 'Save Draft'
+                  }
+                </Button>
+                {currentStep === steps.length - 1 && (
+                  <Button 
+                    onClick={handleComplete}
+                    disabled={saving}
+                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {resume?.status === 'completed' ? 'Update Resume' : 'Complete Resume'}
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex gap-3">
-            <Button 
-              variant="outline" 
-              onClick={handleManualSave}
-              disabled={saving}
-              className="bg-white/80 hover:bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {resume?.status === 'completed' 
-                ? `Update "${personalInfo.resumeName || 'Resume'}"` 
-                : personalInfo.resumeName 
-                  ? `Save "${personalInfo.resumeName}"` 
-                  : 'Save Draft'
-              }
-            </Button>
-            {currentStep === steps.length - 1 && (
-              <Button 
-                onClick={handleComplete}
-                disabled={saving}
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                {resume?.status === 'completed' ? 'Update Resume' : 'Complete Resume'}
-              </Button>
-            )}
           </div>
         </div>
 
         {/* Enhanced Progress Card */}
-        <Card className="border-0 shadow-lg bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+        <Card className="border-0 shadow-xl bg-white dark:bg-gray-800">
+          <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 p-8 border-b border-indigo-100 dark:border-indigo-800">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">Resume Progress</CardTitle>
+              <span className="text-lg font-semibold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full dark:bg-indigo-900/30 dark:text-indigo-400">{Math.round(progress)}% Complete</span>
+            </div>
+          </CardHeader>
           <CardContent className="p-8">
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Resume Progress</h3>
-                <span className="text-lg font-semibold text-blue-600 bg-blue-50 px-4 py-2 rounded-full">{Math.round(progress)}% Complete</span>
-              </div>
               <Progress value={progress} className="h-3 bg-gray-200 dark:bg-gray-700" />
               <div className="flex justify-between">
                 {steps.map((step, index) => (
                   <div
                     key={step.id}
                     className={`flex flex-col items-center cursor-pointer transition-all duration-300 hover:scale-105 ${
-                      index <= currentStep ? "text-blue-600" : "text-gray-400"
+                      index <= currentStep ? "text-indigo-600" : "text-gray-400"
                     }`}
                     onClick={() => setCurrentStep(index)}
                   >
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-all duration-300 shadow-lg ${
                         index <= currentStep 
-                          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-blue-200" 
+                          ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-200 dark:shadow-indigo-900/30" 
                           : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
                       }`}
                     >
@@ -1031,17 +1039,17 @@ function CreateResumeContent() {
         <div className="grid lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3">
             {currentStep === 0 && (
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                <CardHeader className="pb-6">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-800">
+                <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 p-8 border-b border-indigo-100 dark:border-indigo-800">
+                  <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                       <User className="h-5 w-5 text-white" />
                     </div>
                     Personal Information
                   </CardTitle>
-                  <CardDescription className="text-base">Tell us about yourself</CardDescription>
+                  <CardDescription className="text-base text-gray-600 dark:text-gray-400 mt-2">Tell us about yourself</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-8">
+                <CardContent className="p-8 space-y-8">
                   <div className="space-y-3">
                     <Label htmlFor="resumeName" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Resume Name</Label>
                     <Input
@@ -1049,7 +1057,7 @@ function CreateResumeContent() {
                       value={personalInfo?.resumeName || ""}
                       onChange={(e) => setPersonalInfo({ ...personalInfo, resumeName: e.target.value })}
                       placeholder="My Professional Resume"
-                      className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                      className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                     />
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       This will be used as the filename when you download your resume
@@ -1064,7 +1072,7 @@ function CreateResumeContent() {
                         value={personalInfo?.firstName || ""}
                         onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
                         placeholder="John"
-                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                       />
                     </div>
                     <div className="space-y-3">
@@ -1074,7 +1082,7 @@ function CreateResumeContent() {
                         value={personalInfo?.lastName || ""}
                         onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
                         placeholder="Doe"
-                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                       />
                     </div>
                   </div>
@@ -1088,7 +1096,7 @@ function CreateResumeContent() {
                         value={personalInfo?.email || ""}
                         onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
                         placeholder="john@example.com"
-                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                       />
                     </div>
                     <div className="space-y-3">
@@ -1098,7 +1106,7 @@ function CreateResumeContent() {
                         value={personalInfo?.phone || ""}
                         onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
                         placeholder="+1 (555) 123-4567"
-                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                       />
                     </div>
                   </div>
@@ -1110,7 +1118,7 @@ function CreateResumeContent() {
                       value={personalInfo?.location || ""}
                       onChange={(e) => setPersonalInfo({ ...personalInfo, location: e.target.value })}
                       placeholder="San Francisco, CA"
-                      className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                      className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                     />
                   </div>
 
@@ -1122,7 +1130,7 @@ function CreateResumeContent() {
                         value={personalInfo?.website || ""}
                         onChange={(e) => setPersonalInfo({ ...personalInfo, website: e.target.value })}
                         placeholder="https://johndoe.com"
-                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                       />
                     </div>
                     <div className="space-y-3">
@@ -1132,7 +1140,7 @@ function CreateResumeContent() {
                         value={personalInfo?.linkedin || ""}
                         onChange={(e) => setPersonalInfo({ ...personalInfo, linkedin: e.target.value })}
                         placeholder="https://linkedin.com/in/johndoe"
-                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                        className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                       />
                     </div>
                   </div>
@@ -1234,7 +1242,7 @@ function CreateResumeContent() {
                       }}
                       placeholder="Write a brief summary of your professional background and goals..."
                       maxLength={400}
-                      className="border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl resize-none"
+                      className="border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl resize-none"
                     />
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Maximum 400 characters</span>
@@ -1248,17 +1256,17 @@ function CreateResumeContent() {
             )}
 
             {currentStep === 1 && (
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                <CardHeader className="pb-6">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-800">
+                <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 p-8 border-b border-indigo-100 dark:border-indigo-800">
+                  <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                       <Briefcase className="h-5 w-5 text-white" />
                     </div>
                     Work Experience
                   </CardTitle>
-                  <CardDescription className="text-base">Add your work history</CardDescription>
+                  <CardDescription className="text-base text-gray-600 dark:text-gray-400 mt-2">Add your work history</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-8">
+                <CardContent className="p-8 space-y-8">
                   {experiences.map((exp, index) => (
                     <div key={exp.id} className="p-6 border-2 border-gray-200 dark:border-gray-600 rounded-2xl space-y-6 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
                       <div className="flex items-center justify-between">
@@ -1282,7 +1290,7 @@ function CreateResumeContent() {
                             value={exp.title}
                             onChange={(e) => updateExperience(exp.id, "title", e.target.value)}
                             placeholder="Software Engineer"
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                         <div className="space-y-3">
@@ -1291,7 +1299,7 @@ function CreateResumeContent() {
                             value={exp.company}
                             onChange={(e) => updateExperience(exp.id, "company", e.target.value)}
                             placeholder="Google"
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                       </div>
@@ -1303,7 +1311,7 @@ function CreateResumeContent() {
                             value={exp.location}
                             onChange={(e) => updateExperience(exp.id, "location", e.target.value)}
                             placeholder="San Francisco, CA"
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                         <div className="space-y-3">
@@ -1312,7 +1320,7 @@ function CreateResumeContent() {
                             type="month"
                             value={exp.startDate}
                             onChange={(e) => updateExperience(exp.id, "startDate", e.target.value)}
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                         <div className="space-y-3">
@@ -1322,7 +1330,7 @@ function CreateResumeContent() {
                             value={exp.endDate}
                             onChange={(e) => updateExperience(exp.id, "endDate", e.target.value)}
                             disabled={exp.current}
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl disabled:bg-gray-100 dark:disabled:bg-gray-700"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl disabled:bg-gray-100 dark:disabled:bg-gray-700"
                           />
                         </div>
                       </div>
@@ -1367,7 +1375,7 @@ function CreateResumeContent() {
                           }}
                           placeholder="Describe your responsibilities and achievements..."
                           maxLength={250}
-                          className="border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl resize-none"
+                          className="border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl resize-none"
                         />
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-500">Maximum 250 characters</span>
@@ -1393,17 +1401,17 @@ function CreateResumeContent() {
             )}
 
             {currentStep === 2 && (
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                <CardHeader className="pb-6">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-800">
+                <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 p-8 border-b border-indigo-100 dark:border-indigo-800">
+                  <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                       <GraduationCap className="h-5 w-5 text-white" />
                     </div>
                     Education
                   </CardTitle>
-                  <CardDescription className="text-base">Add your educational background</CardDescription>
+                  <CardDescription className="text-base text-gray-600 dark:text-gray-400 mt-2">Add your educational background</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-8">
+                <CardContent className="p-8 space-y-8">
                   {education.map((edu, index) => (
                     <div key={edu.id} className="p-6 border-2 border-gray-200 dark:border-gray-600 rounded-2xl space-y-6 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
                       <div className="flex items-center justify-between">
@@ -1427,7 +1435,7 @@ function CreateResumeContent() {
                             value={edu.degree}
                             onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
                             placeholder="Bachelor of Science in Computer Science"
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                         <div className="space-y-3">
@@ -1436,7 +1444,7 @@ function CreateResumeContent() {
                             value={edu.school}
                             onChange={(e) => updateEducation(edu.id, "school", e.target.value)}
                             placeholder="Stanford University"
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                       </div>
@@ -1448,7 +1456,7 @@ function CreateResumeContent() {
                             value={edu.location}
                             onChange={(e) => updateEducation(edu.id, "location", e.target.value)}
                             placeholder="Stanford, CA"
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                         <div className="space-y-3">
@@ -1457,7 +1465,7 @@ function CreateResumeContent() {
                             type="month"
                             value={edu.startDate}
                             onChange={(e) => updateEducation(edu.id, "startDate", e.target.value)}
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                         <div className="space-y-3">
@@ -1466,7 +1474,7 @@ function CreateResumeContent() {
                             type="month"
                             value={edu.endDate}
                             onChange={(e) => updateEducation(edu.id, "endDate", e.target.value)}
-                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                            className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                           />
                         </div>
                       </div>
@@ -1477,7 +1485,7 @@ function CreateResumeContent() {
                           value={edu.gpa}
                           onChange={(e) => updateEducation(edu.id, "gpa", e.target.value)}
                           placeholder="3.8/4.0"
-                          className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                          className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                         />
                       </div>
                     </div>
@@ -1497,17 +1505,17 @@ function CreateResumeContent() {
             )}
 
             {currentStep === 3 && (
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-                <CardHeader className="pb-6">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-800">
+                <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 p-8 border-b border-indigo-100 dark:border-indigo-800">
+                  <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                       <Code className="h-5 w-5 text-white" />
                     </div>
                     Skills
                   </CardTitle>
-                  <CardDescription className="text-base">Add your technical and soft skills (Maximum 15 skills)</CardDescription>
+                  <CardDescription className="text-base text-gray-600 dark:text-gray-400 mt-2">Add your technical and soft skills (Maximum 15 skills)</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-8">
+                <CardContent className="p-8 space-y-8">
                   <div className="flex gap-3">
                     <Input
                       value={newSkill}
@@ -1515,9 +1523,9 @@ function CreateResumeContent() {
                       placeholder="Enter a skill (e.g., React, Python, Leadership)"
                       onKeyPress={(e) => e.key === "Enter" && addSkill()}
                       disabled={skills.length >= 15}
-                      className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                      className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                     />
-                    <Button onClick={addSkill} disabled={skills.length >= 15} className="h-12 px-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl">
+                    <Button onClick={addSkill} disabled={skills.length >= 15} className="h-12 px-6 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl">
                       <Plus className="h-5 w-5" />
                     </Button>
                   </div>
@@ -1552,7 +1560,7 @@ function CreateResumeContent() {
                                   onClick={() => updateSkillLevel(skill.id, level)}
                                   className={`w-6 h-6 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                                     level <= skill.level
-                                      ? "bg-gradient-to-r from-blue-500 to-purple-600 border-blue-500 shadow-md"
+                                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 border-blue-500 shadow-md"
                                       : "border-gray-300 dark:border-gray-600 hover:border-gray-400"
                                   }`}
                                 />
@@ -1586,7 +1594,7 @@ function CreateResumeContent() {
               <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="pb-6">
                   <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
                       <FolderOpen className="h-5 w-5 text-white" />
                     </div>
                     Projects (Optional)
@@ -1627,7 +1635,7 @@ function CreateResumeContent() {
                                 value={project.title}
                                 onChange={(e) => updateProject(project.id, "title", e.target.value)}
                                 placeholder="E-commerce Website"
-                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                               />
                             </div>
                             <div className="space-y-3">
@@ -1636,7 +1644,7 @@ function CreateResumeContent() {
                                 value={project.link}
                                 onChange={(e) => updateProject(project.id, "link", e.target.value)}
                                 placeholder="https://github.com/username/project"
-                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                               />
                             </div>
                           </div>
@@ -1647,7 +1655,7 @@ function CreateResumeContent() {
                               value={project.technologies}
                               onChange={(e) => updateProject(project.id, "technologies", e.target.value)}
                               placeholder="React, Node.js, MongoDB, Express"
-                              className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                              className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                             />
                           </div>
 
@@ -1658,7 +1666,7 @@ function CreateResumeContent() {
                                 type="date"
                                 value={project.startDate}
                                 onChange={(e) => updateProject(project.id, "startDate", e.target.value)}
-                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl"
+                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl"
                               />
                             </div>
                             <div className="space-y-3">
@@ -1668,7 +1676,7 @@ function CreateResumeContent() {
                                 value={project.endDate}
                                 onChange={(e) => updateProject(project.id, "endDate", e.target.value)}
                                 disabled={project.current}
-                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl disabled:bg-gray-100 dark:disabled:bg-gray-700"
+                                className="h-12 border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl disabled:bg-gray-100 dark:disabled:bg-gray-700"
                               />
                             </div>
                           </div>
@@ -1713,7 +1721,7 @@ function CreateResumeContent() {
                               }}
                               placeholder="Describe what this project does, your role, and key achievements..."
                               maxLength={250}
-                              className="border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 transition-colors rounded-xl resize-none"
+                              className="border-2 border-gray-200 dark:border-gray-600 focus:border-indigo-500 transition-colors rounded-xl resize-none"
                             />
                             <div className="flex justify-between text-sm">
                               <span className="text-gray-500">Maximum 250 characters</span>
@@ -1744,7 +1752,7 @@ function CreateResumeContent() {
               <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="pb-6">
                   <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
                       <Eye className="h-5 w-5 text-white" />
                     </div>
                     Review & Finalize
@@ -1806,7 +1814,7 @@ function CreateResumeContent() {
                   </div>
 
                   <div className="flex gap-4">
-                    <Button className="flex-1 h-14 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl text-lg font-semibold" onClick={handlePrint}>
+                    <Button className="flex-1 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl text-lg font-semibold" onClick={handlePrint}>
                       <Download className="h-5 w-5 mr-2" />
                       {personalInfo.resumeName ? `Generate "${personalInfo.resumeName}"` : 'Generate Resume'}
                     </Button>
@@ -1852,7 +1860,7 @@ function CreateResumeContent() {
           <Button
             onClick={() => setCurrentStep(Math.min(steps.length - 1, currentStep + 1))}
             disabled={currentStep === steps.length - 1}
-            className="h-12 px-8 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl font-semibold"
+            className="h-12 px-8 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl font-semibold"
           >
             Next
             <ChevronRight className="h-4 w-4 ml-2" />

@@ -61,7 +61,7 @@ export const AISummaryModal: React.FC<AISummaryModalProps> = ({
         <DialogHeader>
           <DialogTitle>AI Resume Summary Generator</DialogTitle>
         </DialogHeader>
-        <label>Position (required):</label>
+        <label>Position (editable):</label>
         <Input value={position} onChange={e => setPosition(e.target.value)} placeholder="Position" required />
         <label>Skills (required):</label>
         <Input value={skills} onChange={e => setSkills(e.target.value)} placeholder="Skills" required />
